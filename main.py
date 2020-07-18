@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO)
 app.config["SECRET_KEY"] = "Marusya"
 
 
-@app.route('/post', methods=["POST"])
+@app.route('/', methods=["POST"])
 def main():
     request_json = request.json
     logging.info(f'Request: {request_json!r}')

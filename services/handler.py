@@ -67,12 +67,11 @@ class Handler:
     def continuation_conservation(self, response, request_user, date_user):
         words_user = [morph.parse(word.lower())[0].normal_form() for word in request_user["nlu"]["tokens"]]
         self.check_enable_importance_event(response, words_user)
-        if self.listed_events is None:
-            return
-        event = self.listed_events[self.number_iteration_event]
         if self.wait_importance:
             receive_value = self.receive_importance(words_user)
             if receive_value is not None:
+                self.wait_importance = False
+                event = self.listed_events[self.number_iteration_event - 1]
                 self.set_value_importance_event(event, receive_value)
             else:
                 response["text"] += "Я ожидаю важность события. Нужно лишь число!"
@@ -83,11 +82,22 @@ class Handler:
             if count_events == 0:
                 self.tell_about_lack_events(response, additive=self.additive)
                 return
+            self.number_iteration_event = 0
+            event = self.listed_events.first()
             self.tell_event(response, event, additive=self.additive)
+            return
+        if self.listed_events is None:
+            self.wait_command(response)
             return
         if self.listed_events.count() - self.number_iteration_event == 0:
             self.tell_about_end_events(response, additive=self.additive)
             return
+        if self.check_request_for_continue(words_user):
+            event = self.listed_events[self.number_iteration_event]
+            self.tell_event(response, event, additive=self.additive)
+            if self.say_importance_event:
+                self.offer_set_importance_event(response)
+                return
         self.offer_to_continue(response)
 
     def end_conversation(self, response):
@@ -105,7 +115,7 @@ class Handler:
         response["text"] += "Желаете продолжить список или выбрать другое число?"
         response["tts"] += "Желаете продолжить список или выбрать другое число?"
 
-    def offer_tell_event(self, response):
+    def wait_command(self, response):
         response["text"] += "Прости, я не понимаю тебя. Я диспетчер-историк, назови день и месяц и получишь все события произошедшие в этот день!"
         response["tts"] += "Прости, я не понимаю тебя. Я диспетчер-историк, назови день и месяц и получишь все события произошедшие в этот день!"
 
@@ -231,4 +241,9 @@ class Handler:
                 self.listed_events = dbwrapper.get_events(day, month)
                 self.additive = None
                 return True
+        return False
+
+    def check_request_for_continue(self, words_user):
+        if "продолжить" in words_user:
+            return True
         return False

@@ -197,8 +197,8 @@ class Handler:
         response["tts"] += "Вы можете в любой момент попросить выключить или включить подобную опцию."
 
     def check_enable_importance_event(self, response, words_user):
-        enable_words = ["включить", "врубить", "включение"]
-        disenable_words = ["выключить", "вырубить", "выключение", "отключить", "отключение"]
+        enable_words = ["убрать", "врубить"]
+        disenable_words = ["добавить", "вырубить"]
         importance_word = "важность"
         if importance_word not in words_user:
             return False

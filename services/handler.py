@@ -23,9 +23,9 @@ DAYS_GENT = ["первого", "второго", "третьего",  "четв�
         "двадцать третьего", "двадцать четвертого", "двадцать пятого", "двадцать шестого", "двадцать седьмого", "двадцать восьмого",
         "двадцать девятого", "тридцатого", "тридцать первого"]
 
-DATES_1 = ["{} {}".format(j + 1, morph.parse(MONTHS_CASE[i])[0].normal_form) for i in range(len(MONTHS_AMOUNT_DAYS)) for j in range(MONTHS_AMOUNT_DAYS[i])]
+DATES_1 = ["{} {}".format(j + 1, MONTHS_CASE[i]) for i in range(len(MONTHS_AMOUNT_DAYS)) for j in range(MONTHS_AMOUNT_DAYS[i])]
 DATES_2 = ["{} {}".format(str(j + 1).rjust(2, "0"), str(i + 1).rjust(2, "0")) for i in range(len(MONTHS_AMOUNT_DAYS)) for j in range(MONTHS_AMOUNT_DAYS[i])]
-DATES_3 = ["{} {}".format(morph.parse(DAYS[j])[0].normal_form, morph.parse(MONTHS_CASE[i])[0].normal_form) for i in range(len(MONTHS_AMOUNT_DAYS)) for j in range(MONTHS_AMOUNT_DAYS[i])]
+DATES_3 = ["{} {}".format(DAYS[j], MONTHS_CASE[i]) for i in range(len(MONTHS_AMOUNT_DAYS)) for j in range(MONTHS_AMOUNT_DAYS[i])]
 
 
 class Handler:
@@ -41,7 +41,6 @@ class Handler:
         date_user = self.receiving_date_user(request["meta"]["timezone"])
         response_user = response["response"]
         request_user = request["request"]
-        words_user = self.transform_words(request_user)
         if request["session"]["new"]:
             self.start_conversation(response_user, date_user)
             self.edit_response(response_user)
@@ -49,7 +48,7 @@ class Handler:
         if request_user["command"] == "on_interrupt":
             self.end_conversation(response_user)
             return
-        self.continuation_conservation(response_user, words_user, date_user)
+        self.continuation_conservation(response_user, request_user, date_user)
         self.edit_response(response_user)
 
     def start_conversation(self, response, date_user):
@@ -67,10 +66,12 @@ class Handler:
         self.say_importance_importance_event(response)
         self.offer_disenable_importance_event(response)
 
-    def continuation_conservation(self, response, words_user, date_user):
-        self.check_enable_importance_event(response, words_user)
+    def continuation_conservation(self, response, request_user, date_user):
+        words_user = request_user["nlu"]["tokens"]
+        transform_words_user = self.transform_words(words_user)
+        self.check_enable_importance_event(response, transform_words_user)
         if self.wait_importance:
-            receive_value = self.receive_importance(words_user)
+            receive_value = self.receive_importance(transform_words_user)
             if receive_value is not None:
                 self.wait_importance = False
                 event = self.listed_events[self.number_iteration_event - 1]
@@ -97,7 +98,7 @@ class Handler:
         if self.listed_events.count() - self.number_iteration_event == 0:
             self.tell_about_end_events(response, additive=self.additive)
             return
-        if self.check_request_for_continue(words_user):
+        if self.check_request_for_continue(transform_words_user):
             event = self.listed_events[self.number_iteration_event]
             self.tell_event(response, event, additive=self.additive)
             if self.say_importance_event:
@@ -110,9 +111,9 @@ class Handler:
         response["tts"] = "До связи, друг мой."
         response["end_session"] = True
 
-    def transform_words(self, request_user):
+    def transform_words(self, words):
         words_user = []
-        for word in request_user["nlu"]["tokens"]:
+        for word in words:
             try:
                 words_user.append(morph.parse(word.lower())[0].normal_form)
             except Exception:

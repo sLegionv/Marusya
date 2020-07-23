@@ -81,7 +81,7 @@ class Handler:
             else:
                 response["text"] += "Я ожидаю важность события. Нужно лишь число!"
                 response["tts"] += "Я ожидаю важность события. Нужно лишь число!"
-            return
+                return
         if self.check_new_date(words_user, date_user):
             count_events = self.listed_events.count()
             if count_events == 0:

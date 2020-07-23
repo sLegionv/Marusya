@@ -105,15 +105,15 @@ class Handler:
         self.offer_to_continue(response)
 
     def end_conversation(self, response):
-        response["text"] = "Прощай"
-        response["tts"] = "Прощай"
+        response["text"] = "До связи, друг мой."
+        response["tts"] = "До связи, друг мой."
         response["end_session"] = True
 
     def transform_words(self, request_user):
         words_user = []
         for word in request_user["nlu"]["tokens"]:
             try:
-                words_user.append(morph.parse(word.lower())[0].normal_form())
+                words_user.append(morph.parse(word.lower())[0].normal_form)
             except Exception:
                 words_user.append(word)
         return words_user
@@ -150,7 +150,6 @@ class Handler:
 
     def apply_convert_number(self, number):
         number_str = convertNumber.num2text(number)
-        print(number_str)
         if list(str(number))[-1] == "0":
             number_str += "ом"
         else:

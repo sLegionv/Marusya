@@ -41,13 +41,14 @@ class Handler:
         date_user = self.receiving_date_user(request["meta"]["timezone"])
         response_user = response["response"]
         request_user = request["request"]
+        words_user = self.transform_words(request_user)
         if request["session"]["new"]:
             self.start_conversation(response_user, date_user)
             return
-        if request_user["command"] == "on_interrupt":
+        if request_user["command"] == "on_interrupt" and not self.check_enable_importance_event(response, words_user):
             self.end_conversation(response_user)
             return
-        self.continuation_conservation(response_user, request_user, date_user)
+        self.continuation_conservation(response_user, words_user, date_user)
 
     def start_conversation(self, response, date_user):
         response["text"] += "Добрый вечер, я историк-диспетчер."
@@ -64,14 +65,7 @@ class Handler:
         self.say_importance_importance_event(response)
         self.offer_disenable_importance_event(response)
 
-    def continuation_conservation(self, response, request_user, date_user):
-        words_user = []
-        for word in request_user["nlu"]["tokens"]:
-            try:
-                words_user.append(morph.parse(word.lower())[0].normal_form())
-            except Exception:
-                words_user.append(word)
-        self.check_enable_importance_event(response, words_user)
+    def continuation_conservation(self, response, words_user, date_user):
         if self.wait_importance:
             receive_value = self.receive_importance(words_user)
             if receive_value is not None:
@@ -109,6 +103,15 @@ class Handler:
         response["text"] = "Прощай"
         response["tts"] = "Прощай"
         response["end_session"] = True
+
+    def transform_words(self, request_user):
+        words_user = []
+        for word in request_user["nlu"]["tokens"]:
+            try:
+                words_user.append(morph.parse(word.lower())[0].normal_form())
+            except Exception:
+                words_user.append(word)
+        return words
 
     def receiving_date_user(self, time_zone):
         time_zone_user = pytz.timezone(time_zone)

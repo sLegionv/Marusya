@@ -23,9 +23,9 @@ DAYS_GENT = ["первого", "второго", "третьего",  "четв�
         "двадцать третьего", "двадцать четвертого", "двадцать пятого", "двадцать шестого", "двадцать седьмого", "двадцать восьмого",
         "двадцать девятого", "тридцатого", "тридцать первого"]
 
-DATES_1 = ["{} {}".format(j + 1, MONTHS_CASE[i]) for i in range(len(MONTHS_AMOUNT_DAYS)) for j in range(MONTHS_AMOUNT_DAYS[i])]
+DATES_1 = ["{} {}".format(j + 1, morph.parse(MONTHS_CASE[i])[0].normal_form) for i in range(len(MONTHS_AMOUNT_DAYS)) for j in range(MONTHS_AMOUNT_DAYS[i])]
 DATES_2 = ["{} {}".format(str(j + 1).rjust(2, "0"), str(i + 1).rjust(2, "0")) for i in range(len(MONTHS_AMOUNT_DAYS)) for j in range(MONTHS_AMOUNT_DAYS[i])]
-DATES_3 = ["{} {}".format(DAYS[j], MONTHS_CASE[i]) for i in range(len(MONTHS_AMOUNT_DAYS)) for j in range(MONTHS_AMOUNT_DAYS[i])]
+DATES_3 = ["{} {}".format(morph.parse(DAYS[j])[0].normal_form, morph.parse(MONTHS_CASE[i])[0].normal_form) for i in range(len(MONTHS_AMOUNT_DAYS)) for j in range(MONTHS_AMOUNT_DAYS[i])]
 
 
 class Handler:
@@ -130,8 +130,8 @@ class Handler:
         response["tts"] = ". ".join(response["tts"].split("."))
 
     def offer_to_continue(self, response):
-        response["text"] += "Желаете продолжить список или выбрать другое число?"
-        response["tts"] += "Желаете продолжить список или выбрать другое число?"
+        response["text"] += "Желаете продолжить список или указать другое число?"
+        response["tts"] += "Желаете продолжить список или указать другое число?"
 
     def wait_command(self, response):
         response["text"] += "Прости, я не понимаю тебя. Я диспетчер-историк, назови день и месяц и получишь все события произошедшие в этот день!"
@@ -198,7 +198,7 @@ class Handler:
 
     def check_enable_importance_event(self, response, words_user):
         enable_words = ["добавить", "врубить", "включить", "включение", "добавление"]
-        disenable_words = ["убрать"]
+        disenable_words = ["убрать", "удалить"]
         importance_word = "важность"
         if importance_word not in words_user:
             return False

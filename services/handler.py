@@ -46,7 +46,7 @@ class Handler:
             self.start_conversation(response_user, date_user)
             self.edit_response(response_user)
             return
-        if request_user["command"] == "on_interrupt" and not self.check_enable_importance_event(response_user, words_user):
+        if request_user["command"] == "on_interrupt":
             self.end_conversation(response_user)
             return
         self.continuation_conservation(response_user, words_user, date_user)
@@ -68,6 +68,7 @@ class Handler:
         self.offer_disenable_importance_event(response)
 
     def continuation_conservation(self, response, words_user, date_user):
+        self.check_enable_importance_event(response, words_user)
         if self.wait_importance:
             receive_value = self.receive_importance(words_user)
             if receive_value is not None:
@@ -261,6 +262,8 @@ class Handler:
         return False
 
     def check_request_for_continue(self, words_user):
-        if "продолжить" in words_user:
-            return True
+        words = ["продолжить", "дальше"]
+        for word in words_user:
+            if word in words:
+                return True
         return False

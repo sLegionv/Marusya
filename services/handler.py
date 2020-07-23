@@ -44,11 +44,13 @@ class Handler:
         words_user = self.transform_words(request_user)
         if request["session"]["new"]:
             self.start_conversation(response_user, date_user)
+            self.edit_response(response_user)
             return
         if request_user["command"] == "on_interrupt" and not self.check_enable_importance_event(response_user, words_user):
             self.end_conversation(response_user)
             return
         self.continuation_conservation(response_user, words_user, date_user)
+        self.edit_response(response_user)
 
     def start_conversation(self, response, date_user):
         response["text"] += "Добрый вечер, я историк-диспетчер."
@@ -84,6 +86,9 @@ class Handler:
             self.number_iteration_event = 0
             event = self.listed_events.first()
             self.tell_event(response, event, additive=self.additive)
+            if self.say_importance_event:
+                self.offer_set_importance_event(response)
+                return
             return
         if self.listed_events is None:
             self.wait_command(response)
@@ -119,6 +124,10 @@ class Handler:
         date_user = time_user.now().date()
         return date_user
 
+    def edit_response(self, response):
+        response["text"] = ". ".join(response["text"].split("."))
+        response["tts"] = ". ".join(response["tts"].split("."))
+
     def offer_to_continue(self, response):
         response["text"] += "Желаете продолжить список или выбрать другое число?"
         response["tts"] += "Желаете продолжить список или выбрать другое число?"
@@ -141,6 +150,7 @@ class Handler:
 
     def apply_convert_number(self, number):
         number_str = convertNumber.num2text(number)
+        print(number_str)
         if list(str(number))[-1] == "0":
             number_str += "ом"
         else:
@@ -188,13 +198,13 @@ class Handler:
 
     def check_enable_importance_event(self, response, words_user):
         enable_words = ["включить", "врубить", "включение"]
-        disenable_words = ["выключить", "вырубить", "выключение"]
+        disenable_words = ["выключить", "вырубить", "выключение", "отключить", "отключение"]
         importance_word = "важность"
         if importance_word not in words_user:
             return False
-        if any(word in enable_words for word in enable_words):
+        if any(word in enable_words for word in words_user):
             self.enable_importance_event(response, True)
-        elif any(word in disenable_words for word in enable_words):
+        elif any(word in disenable_words for word in words_user):
             self.enable_importance_event(response, False)
             self.wait_importance = False
         else:
@@ -204,12 +214,12 @@ class Handler:
     def enable_importance_event(self, response, enable):
         value = "включена" if enable else "выключена"
         if enable == self.say_importance_event:
-            response["text"] += "Важность событий уже {}".format(value)
-            response["tts"] += "Важность событий уже {}".format(value)
+            response["text"] += "Важность событий уже {}.".format(value)
+            response["tts"] += "Важность событий уже {}.".format(value)
             return
         self.say_importance_event = enable
-        response["text"] += "Важность событий {}".format(value)
-        response["tts"] += "Важность событий {}".format(value)
+        response["text"] += "Важность событий {}.".format(value)
+        response["tts"] += "Важность событий {}.".format(value)
 
     def receive_importance(self, words_user):
         words = ["ноль", "один", "два", "три"]
@@ -227,7 +237,7 @@ class Handler:
             self.date = date_user.day, date_user.month
             self.listed_events = dbwrapper.get_events(date_user.day, date_user.month)
             return True
-        for i in range(len(DATES_1)):
+        for i in range(len(DATES_1) - 1, -1, -1):
             date_1, date_2, date_3 = DATES_1[i], DATES_2[i], DATES_3[i]
             if date_1 in " ".join(words_user):
                 day, month = date_1.split()

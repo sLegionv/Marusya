@@ -111,7 +111,7 @@ class Handler:
                 words_user.append(morph.parse(word.lower())[0].normal_form())
             except Exception:
                 words_user.append(word)
-        return words
+        return words_user
 
     def receiving_date_user(self, time_zone):
         time_zone_user = pytz.timezone(time_zone)

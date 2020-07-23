@@ -45,7 +45,7 @@ class Handler:
         if request["session"]["new"]:
             self.start_conversation(response_user, date_user)
             return
-        if request_user["command"] == "on_interrupt" and not self.check_enable_importance_event(response, words_user):
+        if request_user["command"] == "on_interrupt" and not self.check_enable_importance_event(response_user, words_user):
             self.end_conversation(response_user)
             return
         self.continuation_conservation(response_user, words_user, date_user)

@@ -65,7 +65,12 @@ class Handler:
         self.offer_disenable_importance_event(response)
 
     def continuation_conservation(self, response, request_user, date_user):
-        words_user = [morph.parse(word.lower())[0].normal_form() for word in request_user["nlu"]["tokens"]]
+        words_user = []
+        for word in request_user["nlu"]["tokens"]:
+            try:
+                words_user.append(morph.parse(word.lower())[0].normal_form())
+            except Exception:
+                words_user.append(word)
         self.check_enable_importance_event(response, words_user)
         if self.wait_importance:
             receive_value = self.receive_importance(words_user)

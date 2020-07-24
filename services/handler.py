@@ -243,7 +243,7 @@ class Handler:
             if date_1 in " ".join(words_user):
                 day, month = date_1.split()
                 month = MONTHS_CASE.index(month) + 1
-                self.date = day, month
+                self.date = int(day), month
                 self.listed_events = dbwrapper.get_events(day, month)
                 self.additive = None
                 return True

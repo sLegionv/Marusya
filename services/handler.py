@@ -254,7 +254,7 @@ class Handler:
                 self.additive = None
                 return True
             elif date_3 in " ".join(words_user):
-                day, month = date_3.split()
+                day, month = date_3.rsplit(" ", 1)
                 day, month = DAYS.index(day) + 1, MONTHS_CASE.index(month) + 1
                 self.date = day, month
                 self.listed_events = dbwrapper.get_events(day, month)

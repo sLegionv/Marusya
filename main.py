@@ -23,8 +23,8 @@ def main():
             'end_session': False
         }
     }
-    handler.handle_dialog(request_json, response)
-    logging.info(f'Response:  {response!r}')
+    value = handler.handle_dialog(request_json, response)
+    logging.info(f'Response:  {response!r}, {value}')
     return json.dumps(response)
 
 

@@ -44,7 +44,7 @@ class Handler:
         if request["session"]["new"]:
             self.start_conversation(response_user, date_user)
             self.edit_response(response_user)
-            return
+            return date_user.day, date_user.month
         if request_user["command"] == "on_interrupt":
             self.end_conversation(response_user)
             return

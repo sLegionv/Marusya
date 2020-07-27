@@ -233,7 +233,7 @@ class Handler:
         dbwrapper.set_importance_event(event.id, value)
 
     def check_new_date(self, words_user, date_user):
-        if "Сегодня" in words_user:
+        if "сегодня" in words_user:
             self.additive = "Сегодня"
             self.date = date_user.day, date_user.month
             self.listed_events = dbwrapper.get_events(date_user.day, date_user.month)
